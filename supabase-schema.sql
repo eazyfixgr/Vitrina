@@ -82,3 +82,25 @@ INSERT INTO settings (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
 -- ============ STORAGE BUCKET ============
 -- Run this in Supabase Dashboard > Storage:
 -- Create a new bucket called 'images' (public bucket)
+
+-- ============ RLS POLICIES FOR STORAGE ============
+-- Allow authenticated users to upload images
+CREATE POLICY "Allow authenticated uploads"
+ON storage.objects
+FOR INSERT
+TO authenticated
+WITH CHECK (bucket_id = 'images');
+
+-- Allow public to view images
+CREATE POLICY "Allow public to view images"
+ON storage.objects
+FOR SELECT
+TO public
+USING (bucket_id = 'images');
+
+-- Allow authenticated users to delete their images
+CREATE POLICY "Allow authenticated deletes"
+ON storage.objects
+FOR DELETE
+TO authenticated
+USING (bucket_id = 'images');
