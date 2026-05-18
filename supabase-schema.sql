@@ -1,87 +1,97 @@
--- Vitrina CMS Database Schema
--- Run this SQL in your Supabase SQL Editor
 
--- ============ CATEGORIES TABLE ============
-CREATE TABLE categories (
-  id BIGSERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  slug TEXT NOT NULL UNIQUE,
-  description TEXT,
-  image_url TEXT,
-  sort_order INTEGER DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+-- ============ ENABLE RLS ON TABLES ============
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 
--- ============ PRODUCTS TABLE ============
-CREATE TABLE products (
-  id BIGSERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  code TEXT NOT NULL,
-  price DECIMAL(10, 2),
-  description TEXT,
-  features TEXT,
-  category_id BIGINT REFERENCES categories(id) ON DELETE SET NULL,
-  images TEXT[] DEFAULT '{}',
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+-- ============ RLS POLICIES FOR CATEGORIES ============
+-- Allow public to view categories
+CREATE POLICY "Allow public to view categories"
+ON categories
+FOR SELECT
+TO public
+USING (true);
 
--- ============ SETTINGS TABLE ============
-CREATE TABLE settings (
-  id BIGINT PRIMARY KEY DEFAULT 1,
-  site_name TEXT DEFAULT 'Το Κατάστημά μου',
-  site_description TEXT DEFAULT 'Καλώς ήρθατε στο κατάστημά μας',
-  logo_url TEXT,
-  primary_color TEXT DEFAULT '#1e40af',
-  secondary_color TEXT DEFAULT '#f59e0b',
-  layout TEXT DEFAULT 'classic',
-  phone TEXT DEFAULT '',
-  email TEXT DEFAULT '',
-  address TEXT DEFAULT '',
-  hero_title TEXT DEFAULT 'Καλώς ήρθατε',
-  hero_subtitle TEXT DEFAULT 'Ανακαλύψτε τα προϊόντα μας',
-  hero_image_url TEXT,
-  show_hero BOOLEAN DEFAULT true,
-  show_categories_on_home BOOLEAN DEFAULT true,
-  facebook_url TEXT DEFAULT '',
-  instagram_url TEXT DEFAULT '',
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+-- Allow authenticated users to insert categories
+CREATE POLICY "Allow authenticated to insert categories"
+ON categories
+FOR INSERT
+TO authenticated
+WITH CHECK (true);
 
--- ============ INDEXES ============
-CREATE INDEX idx_products_category_id ON products(category_id);
-CREATE INDEX idx_products_code ON products(code);
-CREATE INDEX idx_categories_slug ON categories(slug);
+-- Allow authenticated users to update categories
+CREATE POLICY "Allow authenticated to update categories"
+ON categories
+FOR UPDATE
+TO authenticated
+USING (true)
+WITH CHECK (true);
 
--- ============ AUTO-UPDATE UPDATED_AT ============
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ language 'plpgsql';
+-- Allow authenticated users to delete categories
+CREATE POLICY "Allow authenticated to delete categories"
+ON categories
+FOR DELETE
+TO authenticated
+USING (true);
 
-CREATE TRIGGER update_categories_updated_at
-  BEFORE UPDATE ON categories
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- ============ RLS POLICIES FOR PRODUCTS ============
+-- Allow public to view products
+CREATE POLICY "Allow public to view products"
+ON products
+FOR SELECT
+TO public
+USING (true);
 
-CREATE TRIGGER update_products_updated_at
-  BEFORE UPDATE ON products
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- Allow authenticated users to insert products
+CREATE POLICY "Allow authenticated to insert products"
+ON products
+FOR INSERT
+TO authenticated
+WITH CHECK (true);
 
-CREATE TRIGGER update_settings_updated_at
-  BEFORE UPDATE ON settings
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- Allow authenticated users to update products
+CREATE POLICY "Allow authenticated to update products"
+ON products
+FOR UPDATE
+TO authenticated
+USING (true)
+WITH CHECK (true);
 
--- ============ INSERT DEFAULT SETTINGS ============
-INSERT INTO settings (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
+-- Allow authenticated users to delete products
+CREATE POLICY "Allow authenticated to delete products"
+ON products
+FOR DELETE
+TO authenticated
+USING (true);
 
--- ============ STORAGE BUCKET ============
--- Run this in Supabase Dashboard > Storage:
--- Create a new bucket called 'images' (public bucket)
+-- ============ RLS POLICIES FOR SETTINGS ============
+-- Allow public to view settings
+CREATE POLICY "Allow public to view settings"
+ON settings
+FOR SELECT
+TO public
+USING (true);
+
+-- Allow authenticated users to insert/update settings
+CREATE POLICY "Allow authenticated to upsert settings"
+ON settings
+FOR INSERT
+TO authenticated
+WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated to update settings"
+ON settings
+FOR UPDATE
+TO authenticated
+USING (true)
+WITH CHECK (true);
+
+-- Allow authenticated users to delete settings
+CREATE POLICY "Allow authenticated to delete settings"
+ON settings
+FOR DELETE
+TO authenticated
+USING (true);
 
 -- ============ RLS POLICIES FOR STORAGE ============
 -- Allow authenticated users to upload images
