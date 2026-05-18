@@ -1,0 +1,16 @@
+Το project **Vitrina** είναι πλήρως έτοιμο! Το build περνάει χωρίς errors, όλες οι σελίδες compiled successfully, και προστέθηκε SEO optimization (sitemap.xml, robots.txt, manifest.json, metadata σε όλες τις σελίδες).
+
+## Τι απομένει από εσένα:
+
+### 1. Supabase Setup (για να δουλέψει το admin panel):
+1. Πήγαινε στο [supabase.com](https://supabase.com) → New project
+2. Από **Project Settings > API** αντίγραψε τα keys στο `.env.local`
+3. **SQL Editor** → τρέξε όλο το `supabase-schema.sql`
+4. **Storage** → δημιούργησε bucket `images` (public)
+5. **Authentication** → ενεργοποίησε Email provider
+
+### 2. Deploy στο Vercel:
+1. Κάνε push το project σε GitHub repo
+2. Πήγαινε στο [vercel.com](https://vercel.com) → Import repo
+3. Πρόσθεσε τα environment variables (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SITE_URL`)
+4. Deploy! 🚀
